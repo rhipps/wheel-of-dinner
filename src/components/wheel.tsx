@@ -1,4 +1,4 @@
-import WheelComponent from 'react-wheel-of-prizes'
+import WheelComponent, { CanvasConfig } from './wheel-component'
 
 interface WheelConfig {
     segments: Segment[]
@@ -8,8 +8,8 @@ interface WheelConfig {
 }
 
 export type Segment = {
-    text: String
-    colorCode: String
+    text: string
+    colorCode: string
 }
 
 function Wheel(props:WheelConfig) {
@@ -26,6 +26,7 @@ function Wheel(props:WheelConfig) {
       upDuration={100}
       downDuration={1000}
       fontFamily='Arial'
+      canvasConfig={{width: 1000, height:800}}
     />
   )
 }
