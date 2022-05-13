@@ -1,4 +1,4 @@
-import WheelComponent, { CanvasConfig } from './wheel-component'
+import WheelComponent, { CanvasConfig, Segment } from './wheel-component'
 
 interface WheelConfig {
     segments: Segment[]
@@ -7,26 +7,19 @@ interface WheelConfig {
     size?: number;
 }
 
-export type Segment = {
-    text: string
-    colorCode: string
-}
-
 function Wheel(props:WheelConfig) {
   return (
     <WheelComponent
-      segments={props.segments.map((e)=>e.text)}
-      segColors={props.segments.map((e)=>e.colorCode)}
+      // segments={props.segments.map((e)=>e.text)}
+      // segColors={props.segments.map((e)=>e.colorCode)}
+      segments={props.segments}
       onFinished={props.onFinishedCallBack}
-      primaryColor='black'
-      contrastColor='white'
-      buttonText={props.spinButtonText || 'Spin'}
       isOnlyOnce={false}
-      size={280}
-      upDuration={100}
+      upDuration={300}
       downDuration={1000}
-      fontFamily='Arial'
-      canvasConfig={{width: 1000, height:800}}
+      displayWinningText
+      canvasConfig={{width: 1000, height:800, wheelPositionX: 500, wheelPositionY: 300}}
+      wheelConfig={{radius: 280, primaryColor: 'black', secondaryColor: 'white', fontFamily: 'Arial', buttonText: 'Spin', spinButtonRadius: 50}}
     />
   )
 }

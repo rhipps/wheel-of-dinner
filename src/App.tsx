@@ -1,15 +1,16 @@
 import React, { useState } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Wheel, { Segment } from './components/wheel';
+import Wheel from './components/wheel';
+import { Segment } from './components/wheel-component';
 
 
 const onFinished = function(){}
 
 const segments: Segment[] = [
-  {text: 'McDonalds', colorCode: '#EE4040'},
-  {text: 'Wendy\'s', colorCode: '#F0CF50'},
-  {text: 'Raising Canes', colorCode: '#3DA5E0'},
+  {segmentText: 'McDonalds', segmentColorCode: '#EE4040'},
+  {segmentText: 'Wendy\'s', segmentColorCode: '#F0CF50'},
+  {segmentText: 'Raising Canes', segmentColorCode: '#3DA5E0'},
  ]
 
 function App() {
