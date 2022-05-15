@@ -12,7 +12,7 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm install
+      - run: npm ci
       - run: npm run build
       - uses: JamesIves/github-pages-deploy-action@4.1.6
         with:
