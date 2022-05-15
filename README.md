@@ -5,3 +5,4 @@ This is a wheel of dinner for Columbus Ohio, it spins and picks your dinner. The
 ---
 
 Wheel JS Modified from https://github.com/shekharramola/react-wheel-of-prizes
+

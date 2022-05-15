@@ -5,11 +5,11 @@ import Wheel, { Segment } from './components/wheel';
 const colorCodes = ['#E49091', '#80CF94', '#7888D2']
 const configUrl = "https://gist.githubusercontent.com/rhipps/553eda6ba674da0260bce215c24bb191/raw/05892249bb922cf44d80b6ab0b4c3b884e35c9f8/cbus_resteraunts"
 
-const createResterauntSegments = (resterauntNames: string[]): Segment[] => {
-  let tiles: Segment[] = []
-  resterauntNames.forEach((name, idx) => tiles.push({ segmentText: name, segmentColorCode: colorCodes[idx % colorCodes.length] }) )
-  return tiles
-}
+ const createResterauntSegments = (resterauntNames: string[]): Segment[] => {
+   let tiles: Segment[] = []
+   resterauntNames.forEach((name, idx) => tiles.push({ segmentText: name, segmentColorCode: colorCodes[idx % colorCodes.length] }) )
+   return tiles
+ }
 
 const parseOutResterauntNames = (data: any) => data ? data.map((resterauntAndTags: Array<string>) => resterauntAndTags[0]) : []
 
