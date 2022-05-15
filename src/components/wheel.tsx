@@ -261,7 +261,7 @@ const WheelComponent = (props: WheelComponentProps) => {
     setTimeout(() => {
       window.scrollTo(0, 1)
     }, 0)
-  }, [props.segments])
+  }, [props.segments, currentSegment])
 
   return (
     <div id='wheel'>
