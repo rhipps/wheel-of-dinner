@@ -14,12 +14,10 @@ function Wheel(props:WheelConfig) {
       // segColors={props.segments.map((e)=>e.colorCode)}
       segments={props.segments}
       onFinished={props.onFinishedCallBack}
-      isOnlyOnce={false}
-      upDuration={300}
-      downDuration={1000}
+      durationFactor={300}
       displayWinningText
-      canvasConfig={{width: 1000, height:800, wheelPositionX: 500, wheelPositionY: 300}}
-      wheelConfig={{radius: 280, primaryColor: 'black', secondaryColor: 'white', fontFamily: 'Arial', buttonText: 'Spin', spinButtonRadius: 50}}
+      canvasConfig={{width: 800, height:800, wheelPositionX: 400, wheelPositionY: 400}}
+      wheelConfig={{radius: 250, primaryColor: 'black', secondaryColor: 'white', fontFamily: 'Arial', buttonText: 'Spin', spinButtonRadius: 50}}
     />
   )
 }

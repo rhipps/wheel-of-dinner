@@ -8,14 +8,12 @@ export type Segment = {
 
 export interface WheelComponentProps {
   segments: Segment[],
-  winningSegmentText?: string,
   onFinished: Function,
-  isOnlyOnce: boolean,
-  upDuration: number,
-  downDuration: number,
+  durationFactor: number,
   canvasConfig: CanvasConfig,
   wheelConfig: WheelConfig
   displayWinningText?: boolean
+  oneSpin?: boolean
 }
 
 export interface WheelConfig {
@@ -37,25 +35,21 @@ export interface CanvasConfig {
     wheelPositionY: number,
 }
 
-const getCanvas2dContext = (): CanvasRenderingContext2D => {
-  let canvas = document.getElementById('canvas') as HTMLCanvasElement
+const WHEEL_CANVAS_ID = 'drawingCanvas'
+const STATIC_WHEEL_CANVAS_ID = 'staticCanvas'
+const PI2 = Math.PI * 2
+
+const getCanvas2dContext = (canvasId: string): CanvasRenderingContext2D => {
+  let canvas = document.getElementById(canvasId) as HTMLCanvasElement
   return canvas.getContext('2d')!
 }
 
 const clearCanvasArea = (canvasConfig: CanvasConfig): void => {
-  getCanvas2dContext().clearRect(0, 0, canvasConfig.width, canvasConfig.height)
-}
-
-const getAngleDelta = (maxSpeed: number, progress: number): number => {
-  return maxSpeed * Math.sin((progress * Math.PI) / 2 + Math.PI / 2)
+  getCanvas2dContext(WHEEL_CANVAS_ID).clearRect(0, 0, canvasConfig.width, canvasConfig.height)
 }
 
 const drawWheel = (angleCurrent: number, segments: Segment[], canvasConfig: CanvasConfig, wheelConfig: WheelConfig): void => {
-  const canvasContext = getCanvas2dContext()
-  const spingButtonPrimaryColor = wheelConfig.spinButtonPrimaryColor || wheelConfig.primaryColor
-  const spingButtonSecondaryColor = wheelConfig.spinButtonPrimaryColor || wheelConfig.secondaryColor
-  const wheelBorderThickness = 10
-  const wheelOutlineColor = wheelConfig.outlineColor || wheelConfig.primaryColor
+  const canvasContext = getCanvas2dContext(WHEEL_CANVAS_ID)
 
   canvasContext.lineWidth = 1
   canvasContext.strokeStyle = wheelConfig.primaryColor
@@ -65,13 +59,10 @@ const drawWheel = (angleCurrent: number, segments: Segment[], canvasConfig: Canv
 
   drawSegmentsOfWheel(segments ,angleCurrent, canvasConfig, wheelConfig)
 
-  drawSpinButton(wheelConfig.buttonText, wheelConfig.fontFamily, wheelConfig.spinButtonRadius, spingButtonPrimaryColor, spingButtonSecondaryColor, canvasConfig)
-
-  drawWheelOutline(canvasConfig, wheelConfig.radius, wheelBorderThickness, wheelOutlineColor)
+  
 }
 
 const drawSegmentsOfWheel = (segments: Segment[], currentAngle: number, canvasConfig: CanvasConfig, wheelConfig: WheelConfig): void => {
-  const PI2 = Math.PI * 2 // portion of circumference eq which is C = 2*PI*r
   let previousAngle = currentAngle
 
   segments.forEach((segment, index) => {
@@ -82,13 +73,13 @@ const drawSegmentsOfWheel = (segments: Segment[], currentAngle: number, canvasCo
 }
 
 const drawSegment = (segment: Segment, previousAngle: number, nextAngle: number, canvasConfig: CanvasConfig, wheelConfig: WheelConfig): void => {
-  const canvasContext = getCanvas2dContext()
+  const canvasContext = getCanvas2dContext(WHEEL_CANVAS_ID)
   const maxTextLength = 10
 
   canvasContext.save()
   canvasContext.beginPath()
   canvasContext.moveTo(canvasConfig.wheelPositionX, canvasConfig.wheelPositionY)
-  canvasContext.arc(canvasConfig.wheelPositionX, canvasConfig.wheelPositionY, wheelConfig.radius, previousAngle, nextAngle, false)
+  canvasContext.arc(canvasConfig.wheelPositionX, canvasConfig.wheelPositionY, wheelConfig.radius, previousAngle, nextAngle)
   canvasContext.lineTo(canvasConfig.wheelPositionX, canvasConfig.wheelPositionY)
   canvasContext.closePath()
   canvasContext.fillStyle = segment.segmentColorCode
@@ -104,11 +95,9 @@ const drawSegment = (segment: Segment, previousAngle: number, nextAngle: number,
 }
 
 const drawWheelOutline = (canvasConfig: CanvasConfig, radius: number, borderWidth: number, borderColor: string): void => {
-  const PI2 = Math.PI * 2 // portion of circumference eq which is C = 2*PI*r
-  const canvasContext = getCanvas2dContext()
+  const canvasContext = getCanvas2dContext(STATIC_WHEEL_CANVAS_ID)
   canvasContext.beginPath()
-  //TODO maybe able to remove false... its a default
-  canvasContext.arc(canvasConfig.wheelPositionX, canvasConfig.wheelPositionY, radius, 0, PI2, false)
+  canvasContext.arc(canvasConfig.wheelPositionX, canvasConfig.wheelPositionY, radius, 0, PI2)
   canvasContext.closePath()
 
   canvasContext.lineWidth = borderWidth
@@ -117,13 +106,11 @@ const drawWheelOutline = (canvasConfig: CanvasConfig, radius: number, borderWidt
 }
 
 const drawSpinButton = (buttonText: string, fontFamily: string, buttonRadius: number, primaryColor: string, secondaryColor: string, canvasConfig: CanvasConfig): void => {
-  //TODO 2PI is just 360 degrees in radians can probably name this better and shove it some where
-  const PI2 = Math.PI * 2
   const buttonOutlineThickness = 10
 
-  const canvasContext = getCanvas2dContext()
+  const canvasContext = getCanvas2dContext(STATIC_WHEEL_CANVAS_ID)
   canvasContext.beginPath()
-  canvasContext.arc(canvasConfig.wheelPositionX, canvasConfig.wheelPositionY, buttonRadius, 0, PI2, false)
+  canvasContext.arc(canvasConfig.wheelPositionX, canvasConfig.wheelPositionY, buttonRadius, 0, PI2)
   canvasContext.closePath()
   canvasContext.fillStyle = primaryColor
   canvasContext.lineWidth = buttonOutlineThickness
@@ -139,7 +126,7 @@ const drawSpinButton = (buttonText: string, fontFamily: string, buttonRadius: nu
 }
 
 const drawNeedle = (buttonRadius: number, needleColor: string,  canvasConfig: CanvasConfig): void => {
-  const canvasContext = getCanvas2dContext()
+  const canvasContext = getCanvas2dContext(STATIC_WHEEL_CANVAS_ID)
   const needleHeight = buttonRadius/2
 
   canvasContext.lineWidth = 1
@@ -162,7 +149,7 @@ const findCurrentSegment = (segments: Segment[], currentAngle: number): Segment 
 }
 
 const drawText = (text: string, textColor: string, xPos: number, yPos: number, wheelConfig: WheelConfig): void => {
-  const canvasContext = getCanvas2dContext()
+  const canvasContext = getCanvas2dContext(WHEEL_CANVAS_ID)
 
   canvasContext.textAlign = 'center'
   canvasContext.textBaseline = 'middle'
@@ -183,35 +170,55 @@ const drawCurrentWheelState = (canvasConfig: CanvasConfig, angleCurrent: number,
     drawText(currentSegment.segmentText, wheelConfig.secondaryColor, canvasConfig.wheelPositionX + textOffSetX, canvasConfig.wheelPositionY + textOffSetY, wheelConfig)
 }
 
+const drawStaticWheelElements = (wheelConfig: WheelConfig, canvasConfig: CanvasConfig): void => {
+  const spingButtonPrimaryColor = wheelConfig.spinButtonPrimaryColor || wheelConfig.primaryColor
+  const spingButtonSecondaryColor = wheelConfig.spinButtonPrimaryColor || wheelConfig.secondaryColor
+  const wheelBorderThickness = 10
+  const wheelOutlineColor = wheelConfig.outlineColor || wheelConfig.primaryColor
+
+  drawSpinButton(wheelConfig.buttonText, wheelConfig.fontFamily, wheelConfig.spinButtonRadius, spingButtonPrimaryColor, spingButtonSecondaryColor, canvasConfig)
+
+  drawWheelOutline(canvasConfig, wheelConfig.radius, wheelBorderThickness, wheelOutlineColor)
+}
+
 const wheelInit = (onSpinHandler: Function, canvasConfig: CanvasConfig, segments: Segment[], wheelConfig: WheelConfig): void => {
   initCanvas(onSpinHandler, canvasConfig)
   drawCurrentWheelState(canvasConfig, 0, segments, segments[0], false, wheelConfig, false)
+  drawStaticWheelElements(wheelConfig, canvasConfig)
 }
 
 const initCanvas = (onSpinHandler: any, canvasConfig: CanvasConfig) => {
-  let canvas = document.getElementById('canvas') as HTMLCanvasElement
+  let drawingCanvas = document.getElementById(WHEEL_CANVAS_ID) as HTMLCanvasElement
+  let staticCanvas = document.getElementById(STATIC_WHEEL_CANVAS_ID) as HTMLCanvasElement
   if (navigator.userAgent.indexOf('MSIE') !== -1) {
-    canvas = document.createElement('canvas')
-    canvas.setAttribute('width', String(canvasConfig.width))
-    canvas.setAttribute('height', String(canvasConfig.height))
-    canvas.setAttribute('id', 'canvas')
-    document.getElementById('wheel')!.appendChild(canvas)
+    drawingCanvas.setAttribute('width', String(canvasConfig.width))
+    drawingCanvas.setAttribute('height', String(canvasConfig.height))
+    drawingCanvas.setAttribute('id', WHEEL_CANVAS_ID)
+    document.getElementById('wheel')!.appendChild(drawingCanvas)
+
+    staticCanvas.setAttribute('width', String(canvasConfig.width))
+    staticCanvas.setAttribute('height', String(canvasConfig.height))
+    staticCanvas.setAttribute('id', STATIC_WHEEL_CANVAS_ID)
+
+    document.getElementById('wheel')!.appendChild(staticCanvas)
   }
-  canvas.addEventListener('click', onSpinHandler, false)
+  staticCanvas.addEventListener('click', onSpinHandler, false)
+}
+
+const getAngleDelta = (maxSpeed: number, progress: number): number => {
+  const angle = maxSpeed * Math.sin(progress) + Math.cos(progress)
+  return angle
 }
 
 const WheelComponent = (props: WheelComponentProps) => {
   const [isFinished, setFinished] = useState(false)
-  const upTime = props.segments.length * props.upDuration
-  const downTime = props.segments.length * props.downDuration
-  
+  const runTime = props.segments.length * (props.durationFactor * Math.random())
   let isStarted = false
   let currentSegment: Segment = props.segments[0]
   let timerHandle: NodeJS.Timeout = null
   let currentAngle: number = 0
   let angleDelta: number = 0
   let spinStart: number = 0
-  let frames: number = 0
 
   const spin = (): void => {
     const timerDelay = props.segments.length
@@ -219,49 +226,33 @@ const WheelComponent = (props: WheelComponentProps) => {
 
     if (!timerHandle) {
       spinStart = new Date().getTime()
-      frames = 0 
       timerHandle = setInterval(onTimerTick, timerDelay)
     }
   }
 
   const onTimerTick = (): void => {
-    frames++
-    drawCurrentWheelState(props.canvasConfig, currentAngle, props.segments, currentSegment, isStarted, props.wheelConfig, props.displayWinningText)
-    const duration = new Date().getTime() - spinStart
-    const maxSpeed = Math.PI / props.segments.length
-    const oneCircleInRadians = Math.PI * 2
-    let progress = 0
-    let finished = false
+      drawCurrentWheelState(props.canvasConfig, currentAngle, props.segments, currentSegment, isStarted, props.wheelConfig, props.displayWinningText)
+      const duration = new Date().getTime() - spinStart
+      const maxSpeed = Math.PI / props.segments.length
+      const oneCircleInRadians = Math.PI * 2
+      let progress = 0
+      let finished = false
 
-    if (duration < upTime) {
-      progress = duration / upTime
-      angleDelta = getAngleDelta(maxSpeed, progress)
-    } else {
-      if (props.winningSegmentText) {
-        if (currentSegment.segmentText === props.winningSegmentText && frames > props.segments.length) {
-          progress = duration / upTime
-          angleDelta = getAngleDelta(maxSpeed, progress)
-          progress = 1
-        } else {
-          progress = duration / downTime
-          angleDelta = getAngleDelta(maxSpeed, progress)
-        }
-      } else {
-        progress = duration / downTime
+      progress = duration / runTime
+      if (duration < runTime) {
         angleDelta = getAngleDelta(maxSpeed, progress)
       }
       if (progress >= 1) finished = true
-    }
-  
-    currentAngle += angleDelta
-    while (currentAngle >= oneCircleInRadians) currentAngle -= oneCircleInRadians
-    if (finished) {
-      setFinished(true)
-      props.onFinished(currentSegment)
-      clearInterval(timerHandle)
-      timerHandle = null
-      angleDelta = 0
-    }
+
+      currentAngle += angleDelta
+      while (currentAngle >= oneCircleInRadians && progress < 1) currentAngle -= oneCircleInRadians
+      if (finished) {
+        setFinished(true)
+        props.onFinished(currentSegment)
+        clearInterval(timerHandle)
+        timerHandle = null
+        angleDelta = 0
+      }
   }
 
   useEffect(() => {
@@ -274,11 +265,25 @@ const WheelComponent = (props: WheelComponentProps) => {
   return (
     <div id='wheel'>
       <canvas
-        id='canvas'
+        id={WHEEL_CANVAS_ID}
         width={props.canvasConfig.width}
         height={props.canvasConfig.height}
         style={{
-          pointerEvents: isFinished && props.isOnlyOnce ? 'none' : 'auto'
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      />
+      <canvas
+        id={STATIC_WHEEL_CANVAS_ID}
+        width={props.canvasConfig.width}
+        height={props.canvasConfig.height}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          pointerEvents: isFinished && props.oneSpin ? 'none' : 'auto',
+          zIndex: 1
         }}
       />
     </div>

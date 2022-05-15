@@ -5,22 +5,22 @@ import Wheel from './components/wheel';
 import { Segment } from './components/wheel-component';
 
 
-const onFinished = function(){}
 
 const segments: Segment[] = [
-  {segmentText: 'McDonalds', segmentColorCode: '#EE4040'},
+  {segmentText: '123McDonalds', segmentColorCode: '#EE4040'},
   {segmentText: 'Wendy\'s', segmentColorCode: '#F0CF50'},
   {segmentText: 'Raising Canes', segmentColorCode: '#3DA5E0'},
  ]
 
+for (let i = 0; i <= 4; i++) segments.push({segmentText: `tester${i}`, segmentColorCode: '#555544'})
+
 function App() {
-  let [winner, setWinner] = useState()
 
   return (
     <div className="App">
       <header className="App-header">
         <Wheel 
-            onFinishedCallBack={setWinner}
+            onFinishedCallBack={() => {}}
             segments={segments}    
         ></Wheel>
       </header>
