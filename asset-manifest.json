@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/wheel-of-dinner/static/css/main.073c9b0a.css",
-    "main.js": "/wheel-of-dinner/static/js/main.1113d5b0.js",
+    "main.js": "/wheel-of-dinner/static/js/main.04221ad9.js",
     "static/js/377.bad8d46c.chunk.js": "/wheel-of-dinner/static/js/377.bad8d46c.chunk.js",
     "service-worker.js": "/wheel-of-dinner/service-worker.js",
     "index.html": "/wheel-of-dinner/index.html",
     "main.073c9b0a.css.map": "/wheel-of-dinner/static/css/main.073c9b0a.css.map",
-    "main.1113d5b0.js.map": "/wheel-of-dinner/static/js/main.1113d5b0.js.map",
+    "main.04221ad9.js.map": "/wheel-of-dinner/static/js/main.04221ad9.js.map",
     "377.bad8d46c.chunk.js.map": "/wheel-of-dinner/static/js/377.bad8d46c.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.073c9b0a.css",
-    "static/js/main.1113d5b0.js"
+    "static/js/main.04221ad9.js"
   ]
 }
