@@ -32,8 +32,8 @@ function App() {
             onFinished={() => {}}
             durationFactor={300}
             displayWinningText
-            canvasConfig={{width: 800, height:800, wheelPositionX: 400, wheelPositionY: 400}}
-            wheelConfig={{radius: 250, primaryColor: 'black', secondaryColor: 'white', fontFamily: 'Arial', buttonText: 'Spin', spinButtonRadius: 50}}
+            canvasConfig={{width: window.innerWidth, height: window.innerHeight, wheelPositionX: window.innerWidth/2, wheelPositionY: window.innerHeight/2}}
+            wheelConfig={{radius: window.innerWidth/3, primaryColor: 'black', secondaryColor: 'white', fontFamily: 'Arial', buttonText: 'Spin', spinButtonRadius: 50}}
         />
       </div>
     </div>
