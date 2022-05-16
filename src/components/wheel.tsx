@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 
 export type Segment = {
     segmentText: string
@@ -189,8 +189,15 @@ const wheelInit = (onSpinHandler: Function, canvasConfig: CanvasConfig, segments
 }
 
 const initCanvas = (onSpinHandler: any, canvasConfig: CanvasConfig) => {
+  // Grab canvas elements, clone them into themselves removing their attached event listeners 
+  // regrab them from the dom so we have the updated elements that we can reattach the new listener
   let drawingCanvas = document.getElementById(WHEEL_CANVAS_ID) as HTMLCanvasElement
   let staticCanvas = document.getElementById(STATIC_WHEEL_CANVAS_ID) as HTMLCanvasElement
+  drawingCanvas.replaceWith(drawingCanvas.cloneNode(true))
+  staticCanvas.replaceWith(staticCanvas.cloneNode(true))
+  staticCanvas = document.getElementById(STATIC_WHEEL_CANVAS_ID) as HTMLCanvasElement
+  drawingCanvas = document.getElementById(WHEEL_CANVAS_ID) as HTMLCanvasElement
+
   if (navigator.userAgent.indexOf('MSIE') !== -1) {
     drawingCanvas.setAttribute('width', String(canvasConfig.width))
     drawingCanvas.setAttribute('height', String(canvasConfig.height))
@@ -203,6 +210,7 @@ const initCanvas = (onSpinHandler: any, canvasConfig: CanvasConfig) => {
 
     document.getElementById('wheel')!.appendChild(staticCanvas)
   }
+
   staticCanvas.addEventListener('click', onSpinHandler, false)
 }
 
@@ -215,23 +223,13 @@ const WheelComponent = (props: WheelComponentProps) => {
   const [isFinished, setFinished] = useState(false)
   const runTime = props.segments.length * (props.durationFactor * Math.random())
   let isStarted = false
-  let currentSegment: Segment = props.segments[0]
+  let currentSegment = props.segments[0]
   let timerHandle: NodeJS.Timeout = null
   let currentAngle: number = 0
   let angleDelta: number = 0
   let spinStart: number = 0
 
-  const spin = (): void => {
-    const timerDelay = props.segments.length
-    isStarted = true
-
-    if (!timerHandle) {
-      spinStart = new Date().getTime()
-      timerHandle = setInterval(onTimerTick, timerDelay)
-    }
-  }
-
-  const onTimerTick = (): void => {
+  const onTimerTick = useCallback((): void => {
       drawCurrentWheelState(props.canvasConfig, currentAngle, props.segments, currentSegment, isStarted, props.wheelConfig, props.displayWinningText)
       const duration = new Date().getTime() - spinStart
       const maxSpeed = Math.PI / props.segments.length
@@ -254,14 +252,24 @@ const WheelComponent = (props: WheelComponentProps) => {
         timerHandle = null
         angleDelta = 0
       }
-  }
+  },[props.segments])
+
+  const spin =  useCallback((): void => {
+    const timerDelay = props.segments.length
+    isStarted = true
+
+    if (!timerHandle) {
+      spinStart = new Date().getTime()
+      timerHandle = setInterval(onTimerTick, timerDelay)
+    }
+  },[onTimerTick])
 
   useEffect(() => {
     wheelInit(spin, props.canvasConfig, props.segments, props.wheelConfig)
     setTimeout(() => {
       window.scrollTo(0, 1)
     }, 0)
-  }, [props.segments, currentSegment])
+  }, [spin])
 
   return (
     <div id='wheel'>
