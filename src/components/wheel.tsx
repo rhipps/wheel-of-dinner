@@ -33,6 +33,8 @@ export interface CanvasConfig {
     height: number,
     wheelPositionX: number,
     wheelPositionY: number,
+    offSetX?: number,
+    offSetY?: number,
 }
 
 const WHEEL_CANVAS_ID = 'drawingCanvas'
@@ -279,8 +281,8 @@ const WheelComponent = (props: WheelComponentProps) => {
         height={props.canvasConfig.height}
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
+          top: props.canvasConfig.offSetY || 0,
+          left: props.canvasConfig.offSetX || 0,
         }}
       />
       <canvas
@@ -289,8 +291,8 @@ const WheelComponent = (props: WheelComponentProps) => {
         height={props.canvasConfig.height}
         style={{
           position: 'absolute',
-          top: 0,
-          left: 0,
+          top: props.canvasConfig.offSetY || 0,
+          left: props.canvasConfig.offSetX || 0,
           pointerEvents: isFinished && props.oneSpin ? 'none' : 'auto',
           zIndex: 1
         }}
