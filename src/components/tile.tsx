@@ -15,19 +15,20 @@ const RoundedCornerTile = styled.button<{active: boolean}>`
     border-color: #CCCCCC;
     background: #F2F2F2;
     color: ${props => props.active ? 'red' : '#AAAAAA' };
-    width: 200px;
-    height: 200px;
+    width: 100px;
+    height: 100px;
+    margin: 10px;
 `
 
 const Icon = styled.span<{active: boolean}>`
-    font-size: 100px;
+    font-size: 50px;
     color: ${props => props.active ? 'red' : '#AAAAAA' };
 `
 
 const TileComponent = (props: TileProps) => {
     return (
         <RoundedCornerTile active={props.toggled} onClick={props.onClick}>
-            <h3>{props.title}</h3>
+            <div>{props.title}</div>
             <Icon active={props.toggled}>{props.icon}</Icon>
         </RoundedCornerTile>
     )

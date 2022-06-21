@@ -4,7 +4,6 @@ import Wheel, { Segment } from './components/wheel';
 import Tile from './components/tile';
 import { MdOutlineFastfood } from 'react-icons/md'
 import styled from 'styled-components'
-import { TaggedTemplateExpression } from 'typescript';
 
 type Category = {
  name: string,
@@ -15,6 +14,7 @@ type Category = {
 
 const colorCodes = ['#E49091', '#80CF94', '#7888D2']
 const rowWidth = 3
+const baseGoogleMapsUrl = 'https://www.google.com/maps/search/'
 const configUrl = "https://gist.githubusercontent.com/rhipps/553eda6ba674da0260bce215c24bb191/raw/05892249bb922cf44d80b6ab0b4c3b884e35c9f8/cbus_resteraunts"
 
 const ChangeViewButton = styled.button`
@@ -34,17 +34,15 @@ const createResterauntSegments = (resterauntNames: string[]): Segment[] => {
   return segments
 }
 
-const wheelPage = (names: any) => {
-  return(<div>
+const wheelPage = (names: any, onFinished: Function) => {
+  return(
     <Wheel
           segments={createResterauntSegments(names)}
-          onFinished={() => {}}
+          onFinished={onFinished}
           durationFactor={500}
-          displayWinningText
           canvasConfig={{width: window.innerWidth, height: window.innerHeight, wheelPositionX: window.innerWidth/2, wheelPositionY: window.innerHeight/2, offSetY: 75}}
-          wheelConfig={{radius: window.innerWidth/3, primaryColor: 'black', secondaryColor: 'white', fontFamily: 'Arial', buttonText: 'Spin', spinButtonRadius: window.innerWidth/16}}
-    />
-  </div>)
+          wheelConfig={{radius: window.innerWidth/4, primaryColor: 'black', secondaryColor: 'white', fontFamily: 'Arial', buttonText: 'Spin', spinButtonRadius: window.innerWidth/16}}
+    />)
 }
 
 const tilePage = (categories: any, rowWidth: number, onTileClick: Function) => {
@@ -86,10 +84,15 @@ const parseWheelData = (data: any) => {
   return categories
 }
 
+const onFinished = (setWinner: Function) => (segment: Segment) => {
+  setWinner(segment.segmentText)
+}
+
 function App() {
   const [resterauntNames, setResterauntNames] = useState<Array<string>>([])
   const [readyToSpin, setReadyToSpin] = useState<boolean>()
   const [categories, setCategories] = useState<Array<Category>>([])
+  const [winner, setWinner] = useState<string>("")
   
   useEffect(() => {
     fetch(configUrl, {method: 'GET'})
@@ -101,19 +104,23 @@ function App() {
     const activeCategories = categories.filter(category => category.selected)
     const combinedResNames = activeCategories.reduce((prev: string[], cur: Category) => [...prev, ...cur.resterauntNames], [])
     setResterauntNames([...new Set(combinedResNames)])
+    setWinner("")
   }, [readyToSpin, categories])
 
   return (
     <div className="App">
       <div>
-        {!readyToSpin && <ChangeViewButton onClick={() => setReadyToSpin(!readyToSpin)}>Take me to the wheel!</ChangeViewButton>}
+        {!readyToSpin && resterauntNames.length > 0 && <ChangeViewButton onClick={() => setReadyToSpin(!readyToSpin)}>Take me to the wheel!</ChangeViewButton>}
         <br />
         {!readyToSpin && tilePage(categories, rowWidth, setSelectedTile(setCategories))}
       </div>
       <div>
-        {readyToSpin && <ChangeViewButton onClick={() => setReadyToSpin(!readyToSpin)}>I want to pick more food...</ChangeViewButton>}
+        {readyToSpin && !winner && <ChangeViewButton onClick={() => setReadyToSpin(!readyToSpin)}>I want to pick more food...</ChangeViewButton>}
         <br />
-        {readyToSpin && wheelPage(resterauntNames)}
+        {readyToSpin && !winner && wheelPage(resterauntNames, onFinished(setWinner))}
+      </div>
+      <div>
+        {winner !== "" && <ChangeViewButton onClick={() => window.location.href = baseGoogleMapsUrl+winner}>{winner}</ChangeViewButton>}
       </div>
     </div>
   );

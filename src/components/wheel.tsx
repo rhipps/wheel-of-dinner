@@ -160,17 +160,18 @@ const drawText = (text: string, textColor: string, xPos: number, yPos: number, w
   canvasContext.fillText(text, xPos, yPos)
 }
 
-const drawCurrentWheelState = (canvasConfig: CanvasConfig, angleCurrent: number, segments: Segment[], currentSegment: Segment, isStarted: boolean, wheelConfig: WheelConfig, displayWinningText: boolean): void => {
+const drawCurrentWheelState = (canvasConfig: CanvasConfig, angleCurrent: number, segments: Segment[], isStarted: boolean, wheelConfig: WheelConfig, displayWinningText: boolean): Segment => {
   const textOffSetX = 10
   const textOffSetY = wheelConfig.radius + 50
 
   clearCanvasArea(canvasConfig)
   drawWheel(angleCurrent, segments, canvasConfig, wheelConfig)
-  currentSegment = findCurrentSegment(segments, angleCurrent)
+  const currentSegment = findCurrentSegment(segments, angleCurrent)
   isStarted && 
     displayWinningText &&
     drawText(currentSegment.segmentText, wheelConfig.secondaryColor, canvasConfig.wheelPositionX + textOffSetX, canvasConfig.wheelPositionY + textOffSetY, wheelConfig)
-}
+  return currentSegment;
+  }
 
 const drawStaticWheelElements = (wheelConfig: WheelConfig, canvasConfig: CanvasConfig): void => {
   const spingButtonPrimaryColor = wheelConfig.spinButtonPrimaryColor || wheelConfig.primaryColor
@@ -186,7 +187,7 @@ const drawStaticWheelElements = (wheelConfig: WheelConfig, canvasConfig: CanvasC
 const wheelInit = (onSpinHandler: Function, canvasConfig: CanvasConfig, segments: Segment[], wheelConfig: WheelConfig): void => {
   clearCanvasArea(canvasConfig)
   initCanvas(onSpinHandler, canvasConfig)
-  drawCurrentWheelState(canvasConfig, 0, segments, segments[0], false, wheelConfig, false)
+  drawCurrentWheelState(canvasConfig, 0, segments, false, wheelConfig, false)
   drawStaticWheelElements(wheelConfig, canvasConfig)
 }
 
@@ -232,7 +233,7 @@ const WheelComponent = (props: WheelComponentProps) => {
   let spinStart: number = 0
 
   const onTimerTick = useCallback((): void => {
-      drawCurrentWheelState(props.canvasConfig, currentAngle, props.segments, currentSegment, isStarted, props.wheelConfig, props.displayWinningText)
+      currentSegment = drawCurrentWheelState(props.canvasConfig, currentAngle, props.segments, isStarted, props.wheelConfig, props.displayWinningText)
       const duration = new Date().getTime() - spinStart
       const maxSpeed = Math.PI / props.segments.length
       const oneCircleInRadians = Math.PI * 2
@@ -248,6 +249,7 @@ const WheelComponent = (props: WheelComponentProps) => {
       currentAngle += angleDelta
       while (currentAngle >= oneCircleInRadians && progress < 1) currentAngle -= oneCircleInRadians
       if (finished) {
+        console.log("finished", currentSegment)
         setFinished(true)
         props.onFinished(currentSegment)
         clearInterval(timerHandle)
